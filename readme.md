@@ -16,6 +16,6 @@ deduce the average score to find better algorithm.
 
 
 #### Breadth First Search Algorithm
-  ![Image of BFS](hhttps://github.com/Hmnt39/Snake-Automation-Using-AI/blob/master/assets/bfs.png)
+  ![Image of BFS](https://github.com/Hmnt39/Snake-Automation-Using-AI/blob/master/assets/bfs.png)
 #### Deep Neural Network
-  ![Image of neural](hhttps://github.com/Hmnt39/Snake-Automation-Using-AI/blob/master/assets/neural.png)
+  ![Image of neural](https://github.com/Hmnt39/Snake-Automation-Using-AI/blob/master/assets/neural.png)
