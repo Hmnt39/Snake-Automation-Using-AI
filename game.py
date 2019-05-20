@@ -20,7 +20,7 @@ model = model_from_json(loaded_json_model)
 model.load_weights('dnn_model.h5')
 
 class Game:
-    fps = 120
+    fps = 60
     global clock, screen, BASICFONT
 
     def __init__(self):  # Game Initialization
@@ -77,8 +77,11 @@ class Game:
 
         neural=titleFont.render("4. Deep Neural Network", True, cons.WHITE)
         neural_rect=neural.get_rect()
+        
+        random=titleFont.render("5. Random Game", True, cons.WHITE)
+        random_rect=random.get_rect()
 
-        exit_tag=titleFont.render("5. Exit", True, cons.WHITE)
+        exit_tag=titleFont.render("6. Exit", True, cons.WHITE)
         exit_rect=exit_tag.get_rect()
 
         self.screen.blit(images, imagesrect)
@@ -87,7 +90,8 @@ class Game:
         self.screen.blit(bfs, (cons.w/2 - (bfs_rect[2]/2), 150))
         self.screen.blit(hamiltonian, (cons.w/2 - (hamiltonian_rect[2]/2), 180))
         self.screen.blit(neural, (cons.w/2 - (neural_rect[2]/2), 210))
-        self.screen.blit(exit_tag, (cons.w/2 - (exit_rect[2]/2), 240))
+        self.screen.blit(random, (cons.w/2 - (random_rect[2]/2), 240))
+        self.screen.blit(exit_tag, (cons.w/2 - (exit_rect[2]/2), 270))
         while True:
             for event in pygame.event.get():
                 if event.type==pygame.QUIT:
@@ -106,6 +110,9 @@ class Game:
                         self.deep_learning(model)
                         self.overscreen()
                     elif event.key==pygame.K_5:
+                        self.random_game()
+                        self.overscreen()
+                    elif event.key==pygame.K_6:
                         self.close()
     
             pygame.display.update()
@@ -220,7 +227,7 @@ class Game:
                     return 
 
             if snakeCoords[cons.HEAD][0] == food[0] and snakeCoords[cons.HEAD][1] == food[1]:
-                food = getRandomLocation(snakeCoords) 
+                food = getRandomLocation2(snakeCoords) 
                 pygame.mixer.music.play(0)
             else:
                 del snakeCoords[-1] 
@@ -234,6 +241,127 @@ class Game:
                 newHead = [snakeCoords[cons.HEAD][0] - 1, snakeCoords[cons.HEAD][1]]
             elif direction == cons.RIGHT:
                 newHead = [snakeCoords[cons.HEAD][0] + 1, snakeCoords[cons.HEAD][1]]
+            snakeCoords.insert(0, newHead)
+            self.screen.fill(cons.BGCOLOR)
+            self.grid()
+            self.drawsnake(snakeCoords)
+            self.drawfood(food)
+            self.drawScore(len(snakeCoords) - 3)
+            pygame.display.update()
+            self.clock.tick(self.fps)
+
+    def random_game(self): # Random Game Play
+        snakeCoords, food, score = starting_positions()
+        direction = cons.RIGHT
+        while True:
+            pre_direction = direction
+            for event in pygame.event.get(): 
+                if event.type == QUIT:
+                    self.close()
+
+            dir_list= [cons.RIGHT, cons.LEFT, cons.UP, cons.DOWN]
+            direction = random.choice(dir_list)
+
+            if snakeCoords[cons.HEAD][0] == -1 or snakeCoords[cons.HEAD][0] == cons.width or snakeCoords[cons.HEAD][1] == -1 or snakeCoords[cons.HEAD][1] == cons.height:
+                return 
+            for snakeBody in snakeCoords[1:]:
+                if snakeBody[0] == snakeCoords[cons.HEAD][0] and snakeBody[1] == snakeCoords[cons.HEAD][1]:
+                    return 
+
+            if snakeCoords[cons.HEAD][0] == food[0] and snakeCoords[cons.HEAD][1] == food[1]:
+                food = getRandomLocation(snakeCoords) 
+                pygame.mixer.music.play(0)
+            else:
+                del snakeCoords[-1] 
+
+            if direction == cons.UP:
+                newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] - 1]
+            elif direction == cons.DOWN:
+                newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] + 1]
+            elif direction == cons.LEFT:
+                newHead = [snakeCoords[cons.HEAD][0] - 1, snakeCoords[cons.HEAD][1]]
+            elif direction == cons.RIGHT:
+                newHead = [snakeCoords[cons.HEAD][0] + 1, snakeCoords[cons.HEAD][1]]
+
+            if not self.examine_direction(direction, pre_direction):
+                direction = pre_direction
+
+            if direction == cons.UP:
+                newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] - 1]
+                for snakeBody in snakeCoords[1:]:
+                    if snakeBody[0] == newHead[0] and snakeBody[1] == newHead[1]:
+                        newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] + 1]
+                        break
+                for snakeBody in snakeCoords[1:]:
+                    if snakeBody[0] == newHead[0] and snakeBody[1] == newHead[1]:
+                        newHead = [snakeCoords[cons.HEAD][0] + 1, snakeCoords[cons.HEAD][1]]
+                        break
+                for snakeBody in snakeCoords[1:]:
+                    if snakeBody[0] == newHead[0] and snakeBody[1] == newHead[1]:
+                        newHead = [snakeCoords[cons.HEAD][0] - 1, snakeCoords[cons.HEAD][1]]
+                        break
+                if (newHead[0] == -1 or newHead[0] == cons.width or newHead[1] == -1 or newHead[1] == cons.height):
+                    newHead = [snakeCoords[cons.HEAD][0] - 1, snakeCoords[cons.HEAD][1]]
+                if (newHead[0] == -1 or newHead[0] == cons.width or newHead[1] == -1 or newHead[1] == cons.height):
+                    newHead = [snakeCoords[cons.HEAD][0] + 1, snakeCoords[cons.HEAD][1]]
+
+            elif direction == cons.DOWN:
+                newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] + 1]
+                for snakeBody in snakeCoords[1:]:
+                    if snakeBody[0] == newHead[0] and snakeBody[1] == newHead[1]:
+                        newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] - 1]
+                        break
+                for snakeBody in snakeCoords[1:]:
+                    if snakeBody[0] == newHead[0] and snakeBody[1] == newHead[1]:
+                        newHead = [snakeCoords[cons.HEAD][0] + 1, snakeCoords[cons.HEAD][1]]
+                        break
+                for snakeBody in snakeCoords[1:]:
+                    if snakeBody[0] == newHead[0] and snakeBody[1] == newHead[1]:
+                        newHead = [snakeCoords[cons.HEAD][0] - 1, snakeCoords[cons.HEAD][1]]
+                        break
+                if (newHead[0] == -1 or newHead[0] == cons.width or newHead[1] == -1 or newHead[1] == cons.height):
+                    newHead = [snakeCoords[cons.HEAD][0] - 1, snakeCoords[cons.HEAD][1]]
+                if (newHead[0] == -1 or newHead[0] == cons.width or newHead[1] == -1 or newHead[1] == cons.height):
+                    newHead = [snakeCoords[cons.HEAD][0] + 1, snakeCoords[cons.HEAD][1]]
+
+            elif direction == cons.LEFT:
+                newHead = [snakeCoords[cons.HEAD][0] - 1, snakeCoords[cons.HEAD][1]]
+                for snakeBody in snakeCoords[1:]:
+                    if snakeBody[0] == newHead[0] and snakeBody[1] == newHead[1]:
+                        newHead = [snakeCoords[cons.HEAD][0] + 1, snakeCoords[cons.HEAD][1]]
+                        break
+                for snakeBody in snakeCoords[1:]:
+                    if snakeBody[0] == newHead[0] and snakeBody[1] == newHead[1]:
+                        newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] + 1]
+                        break
+                for snakeBody in snakeCoords[1:]:
+                    if snakeBody[0] == newHead[0] and snakeBody[1] == newHead[1]:
+                        newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] - 1]
+                        break
+                if (newHead[0] == -1 or newHead[0] == cons.width or newHead[1] == -1 or newHead[1] == cons.height):
+                    newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] - 1]
+                if (newHead[0] == -1 or newHead[0] == cons.width or newHead[1] == -1 or newHead[1] == cons.height):
+                    newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] + 1]
+
+            elif direction == cons.RIGHT:
+                newHead = [snakeCoords[cons.HEAD][0] + 1, snakeCoords[cons.HEAD][1]]
+                for snakeBody in snakeCoords[1:]:
+                    if snakeBody[0] == newHead[0] and snakeBody[1] == newHead[1]:
+                        newHead = [snakeCoords[cons.HEAD][0] - 1, snakeCoords[cons.HEAD][1]]
+                        break
+                for snakeBody in snakeCoords[1:]:
+                    if snakeBody[0] == newHead[0] and snakeBody[1] == newHead[1]:
+                        newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] + 1]
+                        break
+                for snakeBody in snakeCoords[1:]:
+                    if snakeBody[0] == newHead[0] and snakeBody[1] == newHead[1]:
+                        newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] - 1]
+                        break
+                if (newHead[0] == -1 or newHead[0] == cons.width or newHead[1] == -1 or newHead[1] == cons.height):
+                    newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] - 1]
+                if (newHead[0] == -1 or newHead[0] == cons.width or newHead[1] == -1 or newHead[1] == cons.height):
+                    newHead = [snakeCoords[cons.HEAD][0], snakeCoords[cons.HEAD][1] + 1]
+
             snakeCoords.insert(0, newHead)
             self.screen.fill(cons.BGCOLOR)
             self.grid()
@@ -379,7 +507,7 @@ class Game:
                 if snakeBody[0] == snakeCoords[cons.HEAD][0] and snakeBody[1] == snakeCoords[cons.HEAD][1]:
                     return 
             if snakeCoords[cons.HEAD][0] == food[0] and snakeCoords[cons.HEAD][1] == food[1]:
-                food = getRandomLocation(snakeCoords) 
+                food = getRandomLocation2(snakeCoords) 
                 if food == False:
                     return
             else:

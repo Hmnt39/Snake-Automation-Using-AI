@@ -17,6 +17,14 @@ def getRandomLocation(snake): # Function to get random location for food
         temp = [random.randint(1, cons.width - 2), random.randint(1, cons.height - 2)]
     return temp
 
+def getRandomLocation2(snake): # Function to get random location for food
+    if len(snake) == 100:
+        return False
+    temp = [random.randint(0, cons.width - 1), random.randint(0, cons.height - 1)]
+    while test_not_ok(temp, snake):
+        temp = [random.randint(0, cons.width - 1), random.randint(0, cons.height - 1)]
+    return temp
+
 def test_not_ok(temp, snake): # Function to check if food is not on snake body
     for body in snake:
         if temp[0] == body[0] and temp[1] == body[1]:

@@ -19,3 +19,7 @@ deduce the average score to find better algorithm.
   ![Image of BFS](https://github.com/Hmnt39/Snake-Automation-Using-AI/blob/master/assets/bfs.png)
 #### Deep Neural Network
   ![Image of neural](https://github.com/Hmnt39/Snake-Automation-Using-AI/blob/master/assets/neural.png)
+
+Performance of algorithms (average score vs algorithm)
+#### Performance Graph
+  ![Image of Performance](https://github.com/Hmnt39/Snake-Automation-Using-AI/blob/master/assets/performance.png)
